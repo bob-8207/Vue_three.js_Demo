@@ -20,10 +20,11 @@
                 <i class="el-icon-message"></i>导航一
               </template>
 
-              <el-menu-item index="/">Home</el-menu-item>
-              <el-menu-item index="Demo_1">The Earth</el-menu-item>
-              <el-menu-item index="Demo_2">Demo_2</el-menu-item>
-              <el-menu-item index="Demo_3">Demo_3</el-menu-item>
+              <el-menu-item index="/">TheEarth</el-menu-item>
+              <el-menu-item index="Demo_1">Room</el-menu-item>
+              <el-menu-item index="Demo_2">ECharts</el-menu-item>
+              <el-menu-item index="Demo_3">Shadow</el-menu-item>
+              <el-menu-item index="Demo_template">Base</el-menu-item>
             </el-submenu>
             <el-submenu index="2">
               <template slot="title">

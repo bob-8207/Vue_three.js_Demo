@@ -8,6 +8,9 @@
 //import * as Three from "three";
 
 import * as THREE from "three";
+import OrbitControls from "three-orbitcontrols";
+import Stats from "stats.js";
+import { Mesh } from "three";
 
 export default {
   name: "ThreeTest",
@@ -26,7 +29,8 @@ export default {
       },
       sphere: "", //范围
       cube: "", //部件名称-立方体
-      step: 0 //运动步数
+      step: 0, //运动步数
+      stats: ""
     };
   },
   methods: {
@@ -39,43 +43,18 @@ export default {
       //创建相机  透视相机原理，视角越大，看到的场景越大，那么中间的物体相对于整个场景来说就越小了
       //PerspectiveCamera(仰角角度, 截平面长宽比, 近面距离, 远面距离 )
       this.camera = new THREE.PerspectiveCamera(
-        50,
+        45,
         container.clientWidth / container.clientHeight,
         0.1,
-        1000
+        10000
       );
       //创建坐标轴，显示到场景中 长度为20
-      let axis = new THREE.AxisHelper(20);
-      this.scene.add(axis);
+      //let axis = new THREE.AxisHelper(20);
+      //this.scene.add(axis);
       //相机位置坐标
-      this.camera.position.set(0, 40, 30);
-      this.camera.lookAt(this.scene.position);
-
-      /*生成一个平面的地图*/
-      //引用纹理图片
-      let textureGrass = THREE.ImageUtils.loadTexture(
-        "../../static/img/grass.jpg"
-      );
-      //设置重复绘制方向-双方向重复绘制
-      textureGrass.wrapS = THREE.RepeatWrapping;
-      textureGrass.wrapT = THREE.RepeatWrapping;
-      //设置重复次数-双方向重复4次
-      textureGrass.repeat.set(1, 1);
-      //创建平面的骨架
-      this.geometry = new THREE.PlaneBufferGeometry(60, 30, 1, 1);
-      //创建平面的材料（纯色）
-      this.material = new THREE.MeshLambertMaterial({ color: "#9FB6CD" });
-      //创建平面的材料（图片）
-      //this.material = new THREE.MeshLambertMaterial({ map: textureGrass });
-      //合成平面
-      this.mesh = new THREE.Mesh(this.geometry, this.material);
-      //设置平面的旋转角度和位置
-      this.mesh.rotation.x = -0.5 * Math.PI;
-      this.mesh.position.set(0, 0, 0);
-      //平面接收阴影
-      this.mesh.receiveShadow = true;
-      //平面添加到场景
-      this.scene.add(this.mesh);
+      this.camera.position.set(0, 800, 1500);
+      //相机指向位置- 照相机默认的观察方向是指向z轴负方向（就是朝向屏幕）
+      this.camera.lookAt(new THREE.Vector3(0, 0, 0));
 
       //声明一个渲染
       this.renderer = new THREE.WebGLRenderer();
@@ -87,6 +66,86 @@ export default {
       this.renderer.shadowMapEnabled = true;
       //渲染容器绑定
       container.appendChild(this.renderer.domElement);
+      //性能状态插件
+      this.status = new Stats();
+      this.status.domElement.style.position = "absolute";
+      this.status.domElement.style.left = "6px";
+      this.status.domElement.style.top = "6px";
+      container.appendChild(this.status.domElement);
+      //动作控制
+      this.controls = new OrbitControls(this.camera, this.renderer.domElement);
+    },
+    createFloor() {
+      /*生成一个平面的地图*/
+      //引用纹理图片
+      let textureGrass = THREE.ImageUtils.loadTexture(
+        "../../static/img/grass.jpg"
+      );
+      //设置重复绘制方向-双方向重复绘制
+      textureGrass.wrapS = THREE.RepeatWrapping;
+      textureGrass.wrapT = THREE.RepeatWrapping;
+      //设置重复次数-双方向重复4次
+      textureGrass.repeat.set(1, 1);
+      //创建平面的骨架
+      this.geometry = new THREE.BoxGeometry(2600, 1400, 1);
+      //创建平面的材料（纯色）
+      this.material = new THREE.MeshLambertMaterial({ color: "#9FB6CD" });
+      //创建平面的材料（图片）
+      //this.material = new THREE.MeshLambertMaterial({ map: textureGrass });
+      //合成平面
+      this.mesh = new THREE.Mesh(this.geometry, this.material);
+      //设置平面的旋转角度和位置
+      this.mesh.rotation.x = Math.PI / 2;
+      //this.mesh.rotation.y = 0.5;
+      this.mesh.position.set(0, 0, 0);
+      //平面接收阴影
+      this.mesh.receiveShadow = true;
+      //平面添加到场景
+      this.scene.add(this.mesh);
+      //创建墙
+      this.createCubeWall(
+        10,
+        200,
+        1400,
+        0,
+        new THREE.MeshPhongMaterial({ color: 0xafc0ca }),
+        -1295,
+        100,
+        0,
+        "墙面"
+      );
+      this.createCubeWall(
+        10,
+        200,
+        1400,
+        1,
+        new THREE.MeshPhongMaterial({ color: 0xafc0ca }),
+        1295,
+        100,
+        0,
+        "墙面"
+      );
+      this.createCubeWall(
+        10,
+        200,
+        2600,
+        1.5,
+        new THREE.MeshPhongMaterial({ color: 0xafc0ca }),
+        0,
+        100,
+        -700,
+        "墙面"
+      );
+    },
+    createCubeWall(width, height, depth, angle, material, x, y, z, name) {
+      var cubeGeometry = new THREE.BoxGeometry(width, height, depth);
+      var cube = new THREE.Mesh(cubeGeometry, material);
+      cube.position.x = x;
+      cube.position.y = y;
+      cube.position.z = z;
+      cube.rotation.y += angle * Math.PI;
+      cube.name = name;
+      this.scene.add(cube);
     },
     cubes() {
       /* 构造立方体 */
@@ -132,15 +191,15 @@ export default {
       this.scene.add(this.sphere);
     },
     light() {
-      //添加聚光灯光源
-      let light = new THREE.SpotLight(0xffffff);
-      light.position.set(-40, 60, -10);
-      light.castShadow = true;
-      light.shadow.mapSize.width = 2048;
-      light.shadow.mapSize.height = 2048;
-      this.scene.add(light);
+      //添加平行光光源
+      let directionalLight = new THREE.DirectionalLight(0xffffff, 0.3);
+      //灯光颜色HSL（色调，饱和度，亮度）HSV（表色调，饱和度和值）
+      directionalLight.color.setHSL(0.1, 1, 0.95);
+      directionalLight.position.set(0, 200, 0).normalize();
+      this.scene.add(directionalLight);
       //添加环境光
-      let ambientLight = new THREE.AmbientLight("#000000");
+      let ambientLight = new THREE.AmbientLight(0xffffff, 1);
+      ambientLight.position.set(0, 0, 0);
       this.scene.add(ambientLight);
     },
     animate: function() {
@@ -153,6 +212,8 @@ export default {
       this.sphere.position.z = 2 + 10 * Math.cos(this.step);
       this.sphere.position.y = 5 + 10 * Math.abs(Math.sin(this.step));
       //this.sphere.position.z = 5 + 10 * Math.abs(Math.sin(this.step));
+      //刷新性能监视插件
+      this.status.update();
       //动作帧数回调 - 反复运行
       requestAnimationFrame(this.animate);
       //渲染场景和相机
@@ -161,6 +222,7 @@ export default {
   },
   mounted() {
     this.init();
+    this.createFloor();
     this.cubes();
     this.light();
     this.animate();

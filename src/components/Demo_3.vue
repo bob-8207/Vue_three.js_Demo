@@ -5,9 +5,9 @@
 </template>
 
 <script>
-//import * as Three from "three";
-
 import * as THREE from "three";
+import OrbitControls from "three-orbitcontrols";
+import * as Stats from "stats.js";
 
 export default {
   name: "ThreeTest",
@@ -20,10 +20,7 @@ export default {
       container: "", //容器名称
       material: "", //平面材料
       mesh: "", //平面对象
-      controls: {
-        rotationSpeed: 0.02, //回转速度参数
-        bouncingSpeed: 0.03 //弹跳速度参数
-      },
+      controls: "",
       sphere: "", //范围
       cube: "", //部件名称-立方体
       step: 0 //运动步数
@@ -87,6 +84,14 @@ export default {
       this.renderer.shadowMapEnabled = true;
       //渲染容器绑定
       container.appendChild(this.renderer.domElement);
+      //动作控制
+      this.controls = new OrbitControls(this.camera, this.renderer.domElement);
+      //性能状态插件
+      this.status = new Stats();
+      this.status.domElement.style.position = "absolute";
+      this.status.domElement.style.left = "6px";
+      this.status.domElement.style.top = "6px";
+      container.appendChild(this.status.domElement);
     },
     cubes() {
       /* 构造立方体 */
@@ -145,14 +150,16 @@ export default {
     },
     animate: function() {
       //设置立方体 x，y，z轴 旋转速度
-      this.cube.rotation.x += this.controls.rotationSpeed;
-      this.cube.rotation.y += this.controls.rotationSpeed;
-      this.cube.rotation.z += this.controls.rotationSpeed;
+      this.cube.rotation.x += 0.01;
+      this.cube.rotation.y -= 0.02;
+      this.cube.rotation.z += 0.03;
       //设置球体 跳跃动作参数
-      this.step += this.controls.bouncingSpeed;
+      this.step += 0.03;
       this.sphere.position.x = 20 + 10 * Math.cos(this.step);
       this.sphere.position.y = 5 + 10 * Math.abs(Math.sin(this.step));
       //this.sphere.position.z = 5 + 10 * Math.abs(Math.sin(this.step));
+      //刷新性能监视插件
+      this.status.update();
       //动作帧数回调 - 反复运行
       requestAnimationFrame(this.animate);
       //渲染场景和相机

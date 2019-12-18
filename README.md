@@ -1,6 +1,6 @@
-# threejs_demo
+# Vue + three.js
 
-> A Vue.js project
+> 在Vue项目中通过three.js实现3D场景展示;
 
 ## Build Setup
 
